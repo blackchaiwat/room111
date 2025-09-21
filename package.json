@@ -28,6 +28,7 @@
     "easymde": "^2.20.0",
     "emoji-picker-react": "^4.4.7",
     "feather-icons": "^4.29.0",
+    "i18n-iso-countries": "^7.14.0",
     "leaflet": "^1.9.3",
     "numeral": "^2.0.6",
     "photoswipe": "^5.3.6",

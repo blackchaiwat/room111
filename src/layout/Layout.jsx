@@ -29,7 +29,15 @@ const Layout = ({ children, ...rest }) => {
           <Header />
           <Sidebar />
           <RightSidebar />
-          <div className="page-body" ref={nodeRef}>
+          <div
+            className="page-body"
+            ref={nodeRef}
+            style={{
+              background: window.location.href.includes("/dashboard/main")
+                ? "white"
+                : "#777777",
+            }}
+          >
             <TransitionGroup {...rest}>
               <CSSTransition
                 key={location.key}
@@ -44,7 +52,7 @@ const Layout = ({ children, ...rest }) => {
               </CSSTransition>
             </TransitionGroup>
           </div>
-          <Footer />
+          {/* <Footer /> */}
         </div>
         <ThemeCustomize />
       </div>

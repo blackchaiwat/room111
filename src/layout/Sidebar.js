@@ -181,13 +181,8 @@ const Sidebar = () => {
             <div className={`page-sidebar ${switchToggle? 'open': sidebar_background_color}`}>
                 <div className="main-header-left d-none d-lg-block custom-sidebar">
                     <div className="logo-wrapper compactLogo" style={{ textAlign: 'center' }}>
-                        <Link to={`${process.env.PUBLIC_URL}/dashboard/default`} style={{ color: 'white' }}>
-                            <img className="blur-up lazyloaded light" src={newlogo}  alt="" style={{ maxWidth: '170px' }} />
-                            <img className="blur-up lazyloaded compactlogo" src={newlogo}  alt="" style={{ maxWidth: '170px' }} />
-                            <img className="blur-up lazyloaded logo" src={newlogo}  alt="" style={{ maxWidth: '170px' }} />
-                            {/* <h2 style={{ fontWeight: 600 }}>พร้อมขาย</h2> */}
-
-                            {/* <img src={require("../assets/images/logo.png")}  alt="logo" style={{ width: '100%', height: 'auto', maxWidth: '200px' }} /> */}
+                        <Link to={`${process.env.PUBLIC_URL}/dashboard/default`} style={{ color: 'white' }}>   
+                            <h2 style={{ fontWeight: 600 }}>ROOM111</h2>
                         </Link>
                     </div>
                 </div>

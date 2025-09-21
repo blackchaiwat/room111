@@ -148,6 +148,14 @@ export function getFilterDate(criteria) {
           startDate = moment().format(formatDate);
           endDate = moment().format(formatDate);
       }
+      else if (criteria.customType === '1month') {
+        startDate = moment().add('month', -1).format(formatDate);
+        endDate = moment().format(formatDate);
+      }
+      else if (criteria.customType === '3month') {
+        startDate = moment().add('month', -3).format(formatDate);
+        endDate = moment().format(formatDate);
+      }
   }
   return {
     startDate,
