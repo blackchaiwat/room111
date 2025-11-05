@@ -33,9 +33,11 @@ const Layout = ({ children, ...rest }) => {
             className="page-body"
             ref={nodeRef}
             style={{
-              background: window.location.href.includes("/dashboard/main")
-                ? "white"
-                : "#777777",
+              background:
+                window.location.href.includes("/dashboard/main") ||
+                window.location.href.includes("/dashboard/sku")
+                  ? "white"
+                  : "#777777",
             }}
           >
             <TransitionGroup {...rest}>

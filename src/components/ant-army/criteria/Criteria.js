@@ -20,14 +20,31 @@ export const BoxFilter = ({ text = '', isActive = false, onChange, isView = fals
     )
 }
 
-export const BoxSearch = ({ value, onChange }) => {
+export const BoxSearch = ({ value, onChange, placeholder = 'ค้นหา...', isNew = false }) => {
+    if (isNew) {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', padding: '20px 20px' }}>
+                <div className="faq-form">
+                    <Input 
+                        className="form-control"
+                        type="text"
+                        placeholder={placeholder}
+                        style={{ width: 300, border: '1px solid #D1D1D1', padding: '14px' }}
+                        value={value}
+                        onChange={(e) => onChange('keyword', e.target.value)} 
+                    />
+                    <Search className="search-icon" style={{ height: '28px', width: 'auto' }} />
+                </div>
+            </div>
+        )
+    }
     return (
         <div style={{ display: 'flex', alignItems: 'center', padding: '20px 20px' }}>
             <div className="faq-form">
                 <Input 
                     className="form-control"
                     type="text"
-                    placeholder="ค้นหา.."
+                    placeholder={placeholder}
                     style={{ width: 300 }}
                     value={value}
                     onChange={(e) => onChange('keyword', e.target.value)} 
@@ -220,6 +237,35 @@ export const BoxHeader2 = ({ isHealth = true, setIsHealth }) => {
                     cursor: 'pointer',
                 }} onClick={() => setIsHealth(true)}>
                     <span style={{ fontSize: '18px', fontWeight: 600 }}>HEALTH</span>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export const BoxHeader3 = ({ isResult = true, setIsResult }) => {
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: '20px' }}>
+                <div style={{
+                    background: !isResult ? 'black' : '#D9D9D9',
+                    color: !isResult ? 'white' : 'black',
+                    padding: '4px 14px',
+                    width: '190px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                }} onClick={() => setIsResult(false)}>
+                    <span style={{ fontSize: '18px', fontWeight: 600 }}>SKU Generator</span>
+                </div>
+                <div style={{
+                    background: isResult ? 'black' : '#D9D9D9',
+                    color: isResult ? 'white' : 'black',
+                    padding: '4px 14px',
+                    width: '150px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                }} onClick={() => setIsResult(true)}>
+                    <span style={{ fontSize: '18px', fontWeight: 600 }}>SKU Data</span>
                 </div>
             </div>
         </div>

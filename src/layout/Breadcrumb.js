@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {Row, Col, Container,Breadcrumb,BreadcrumbItem} from 'reactstrap'
 import {Link} from 'react-router-dom'
-import { BoxHeader, BoxHeader2 } from '../components/ant-army/criteria/Criteria';
+import { BoxHeader, BoxHeader2, BoxHeader3 } from '../components/ant-army/criteria/Criteria';
 const Breadcrumbs = (props) => {
     const [breadcrumb, setBreadcrumb] = useState(props);
 
@@ -12,7 +12,7 @@ const Breadcrumbs = (props) => {
                     <Col lg='6'>
                         <h2 style={{ fontWeight: 600 }}>{breadcrumb.title}</h2>
                         <Breadcrumb>
-                        <BreadcrumbItem><Link to={`${process.env.PUBLIC_URL}/dashboard/default`}>{breadcrumb.parent}</Link></BreadcrumbItem>
+                        <BreadcrumbItem><Link to={`${process.env.PUBLIC_URL}/dashboard/main`}>{breadcrumb.parent}</Link></BreadcrumbItem>
                         <BreadcrumbItem>{breadcrumb.subparent}</BreadcrumbItem>
                         <BreadcrumbItem active>{breadcrumb.title}</BreadcrumbItem>
                         </Breadcrumb>
@@ -22,6 +22,14 @@ const Breadcrumbs = (props) => {
                             <BoxHeader2
                                 isHealth={props.isHealth}
                                 setIsHealth={props.setIsHealth}
+                            />
+                        </Col>
+                    )}
+                    {props.isResult !=  null && (
+                        <Col lg='6'>
+                            <BoxHeader3
+                                isResult={props.isResult}
+                                setIsResult={props.setIsResult}
                             />
                         </Col>
                     )}

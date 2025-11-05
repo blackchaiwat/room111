@@ -209,8 +209,12 @@ const Sidebar = () => {
                                         </a>
                                         : ''}
                                     {(menuItem.type === 'link') ?
-                                        <Link className={`sidebar-header ${menuItem.active ? 'active' :''}`}  onClick={() => toggletNavActive(menuItem)} to={menuItem.path}>
-                                            <menuItem.icon /><span>{menuItem.title}</span>
+                                        <Link className={`sidebar-header ${menuItem.active ? 'active' :''}`}  onClick={() => toggletNavActive(menuItem)} to={menuItem.path} style={{ display: 'flex', alignItems: 'center' }}>
+                                            {/* <menuItem.icon /> */}
+                                            <div style={{ width: '45px', display: 'flex', justifyContent: 'center' }}>
+                                                <img alt={menuItem.img} src={require(`../assets/images/icon/${menuItem.img}`)} style={{ height: '100%', width: 'auto', maxHeight: '20px' }} />
+                                            </div>
+                                            <span>{menuItem.title}</span>
                                             {menuItem.children ?
                                                 <i className="fa fa-angle-right pull-right"></i> : ''}
                                         </Link>
