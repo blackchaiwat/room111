@@ -7,12 +7,15 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
 const masterCategory = [
+    { value: 'HW', label: 'Health & Wellness' },
+    { value: 'CL', label: 'Cleaning' },
     { value: 'VT', label: 'Vitamin' },
     { value: 'HR', label: 'Herb' },
     { value: 'CT', label: 'Catnip' },
 ]
 
 const masterModel = [
+    { value: 'LMB', label: 'Lamoonbaby' },
     { value: 'VTC', label: 'VitaminC' },
 ]
 
@@ -53,6 +56,7 @@ const SkuForm = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
+    const [errorText, setErrorText] = useState('');
     const [success, setSuccess] = useState(false);
     const [actionType, setActionType] = useState(null);
 
@@ -65,6 +69,7 @@ const SkuForm = () => {
         setValue('attributeType', 'special');
         setAttribute1(randomLetters());
         setAttribute2(randomNumbers());
+        window.scrollTo({ top: 100, behavior: "smooth" });
     }
 
     useEffect(() => {
@@ -90,6 +95,8 @@ const SkuForm = () => {
         setLoading(false);
         if (res?.result === 'error') {
             setError(true);
+            const sku = `${data.producttype}${data.category}${data.model}${data.attribute1 || randomAttribute1}${data.attribute2 || randomAttribute2}${data.salestype}`;
+            setErrorText(res?.resultdetail === 'sku_existing' ? `SKU: ${sku} นี้มีอยู่แล้วในระบบ` : 'เกิดข้อผิดพลาด ไม่สามารถบันทึกข้อมูลได้');
         } else {
             setSuccess(true);
         }
@@ -126,7 +133,7 @@ const SkuForm = () => {
     return (
         <Fragment>
             <BoxLoading open={loading} setOpen={setLoading} />
-            <BoxError open={error} setOpen={setError} />
+            <BoxError open={error} setOpen={setError} text={errorText} />
             <BoxSuccess open={success} setOpen={onSubmitSuccess} />
 
             <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '20px', paddingBottom: '40px' }}>
@@ -313,8 +320,9 @@ const SkuForm = () => {
                         <Row className='mt-4 mb-4'>
                             <Col lg='12' className='text-center'>
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
+                                    <Button color="default" style={{ padding: '10px 30px', border: '1px solid black', width: 120 }} onClick={() => fetch()}>Clear</Button>
                                     <Button color="primary" style={{ padding: '10px 30px' }} type="submit" onClick={() => setActionType('generate')}>Generate SKU</Button>
-                                    <Button color="primary" style={{ padding: '10px 30px' }} type="submit" onClick={() => setActionType('export')}>Export CSV, Excel</Button>
+                                    {/* <Button color="primary" style={{ padding: '10px 30px' }} type="submit" onClick={() => setActionType('export')}>Export CSV, Excel</Button> */}
                                 </div>
                             </Col>
                         </Row>
