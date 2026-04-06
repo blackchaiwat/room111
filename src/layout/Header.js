@@ -126,8 +126,9 @@ import logo_light from '../assets/images/logo3.png'
         <div className="main-header-right row">
           <div className="main-header-left d-lg-none col-auto p-0">
             <div className="logo-wrapper header-logo normal"><a href="#javascript">
-              <img className="normallogo" src={creativeLogo} alt="" style={{ maxWidth: '120px' }} />
-              <img className="lightlogo" src={logo_light}  alt="" style={{ maxWidth: '120px' }} />
+              {/* <img className="normallogo" src={creativeLogo} alt="" style={{ maxWidth: '120px' }} /> */}
+              {/* <img className="lightlogo" src={logo_light}  alt="" style={{ maxWidth: '120px' }} /> */}
+                <h3 style={{ fontWeight: 600 }}>ROOM111</h3>
               </a></div>
           </div>
           <div className="mobile-sidebar d-block col-auto ps-0">

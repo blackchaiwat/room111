@@ -1,16 +1,13 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import BreadCrumb from '../../../layout/Breadcrumb'
 import { Container, Row, Col, Card, CardBody, CardHeader, Button, Collapse, CardFooter } from 'reactstrap'
 import DataTable from 'react-data-table-component'
-import { getDate, getFilterDate, getFilterMinMax, getGender, getYearOld, toFixed } from '../../../util/helpper';
+import { getDate, getDateTime, getFilterDate, toFixed } from '../../../util/helpper';
 import { Filters } from '../../../constant';
-import { BoxCriteriaDate, BoxCustomDate, BoxCustomType, BoxFilter, BoxSearch } from '../criteria/Criteria';
-import { useNavigate } from 'react-router';
-import { getInfluList } from '../../../util/influ';
-import useProvince from '../../../util/useProvince';
-import useProductType from '../../../util/useProductType';
+import { BoxCriteriaDate, BoxSearch } from '../criteria/Criteria';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { Upload } from 'react-feather';
+import { getOrderList, getOrderMaster } from '../../../util/order';
 
 const customStyles = {
     headCells: {
@@ -22,14 +19,12 @@ const customStyles = {
 };
 
 const channels = [
-    { id: 'Shopee', name: 'Shopee' }
+    { id: 'Shopee', name: 'Shopee' },
+    { id: 'TIKTOK', name: 'TIKTOK' },
 ];
 
 const repeacts = [];
 const spendings = [];
-const warehouses = [];
-const statusTransfers = [];
-const statusPayments = [];
 
 const filterList = [
     {
@@ -50,17 +45,17 @@ const filterList = [
     {
         title: 'Warehouse',
         name: 'warehouses',
-        list: warehouses
+        list: []
     },
     {
         title: 'Status จัดส่ง',
         name: 'statusTransfers',
-        list: statusTransfers
+        list: []
     },
     {
         title: 'Status ชำระเงิน',
         name: 'statusPayments',
-        list: statusPayments
+        list: []
     },
 ]
 
@@ -74,14 +69,31 @@ const init = {
 }
 
 const OrderResult = () => {
-    const navigate = useNavigate();
     const [data, setData] = useState([]);
     const [isFilter, setIsFilter] = useState(false);
     const [filter, setFilter] = useState({ ...init });
     const [isHealth, setIsHealth] = useState(true);
 
-    const masterProvince = useProvince();
-    const masterProductType = useProductType();
+    const [warehouses, setWarehouses] = useState([]);
+    const [statusTransfers, setStatusTransfers] = useState([]);
+    const [statusPayment, setStatusPayment] = useState([]);
+
+    useEffect(() => {
+        getMasterData();
+    }, [])
+
+    const getMasterData = async () => {
+        const res = await getOrderMaster({});
+        setWarehouses(
+            (res?.data?.warehouses || []).map((m) => ({ id: m, name: m }))
+        );
+        setStatusTransfers(
+            (res?.data?.deliverystatuses || []).map((m) => ({ id: m, name: m }))
+        );
+        setStatusPayment(
+            (res?.data?.paymentstatuses || []).map((m) => ({ id: m, name: m }))
+        );
+    }
 
     const [criteria, setCriteria] = useState({
         customType: '',
@@ -91,45 +103,29 @@ const OrderResult = () => {
         ...init
     })
 
-    const onClickDetail = (id) => {
-        navigate(`${process.env.PUBLIC_URL}/influ/detail/${id}`);
-    }
-        
     function mappingData(data){
         const list = [];
     
         data.forEach((m, i) => {
             list.push({
-                action: (
-                    <div>
-                      <span onClick={() => onClickDetail(m.profileid)}>
-                        <i
-                          className="fa fa-eye"
-                          style={{
-                            width: 35,
-                            fontSize: 16,
-                            padding: 11,
-                            color: "#034bb9",
-                            cursor: 'pointer',
-                          }}
-                        ></i>
-                      </span>
-                    </div>
-                ),
-                no: i + 1,
-                firstname: m?.firstname || '',
-                lastname: m?.lastname || '',
-                tiktokaccount: m?.tiktokprofile?.user || '',
-                follower: toFixed(m?.tiktokprofile?.followercount || 0),
-                like: toFixed(m?.tiktokprofile?.likecount || 0),
-                heart: toFixed(m?.tiktokprofile?.heartcount || 0),
-                vdo: toFixed(m?.tiktokprofile?.videocount || 0),
-                share: toFixed(m?.tiktokprofile?.sharecount || 0),
-                engagement: toFixed(m?.tiktokprofile?.engagementcount || 0),
-                registerdate: getDate(m?.created || ''),
-                location: m?.address?.province || '',
-                gender: getGender(m?.gender || ''),
-                year: getYearOld(m?.bhd || ''),
+                orderid: m?.orderid || '',
+                orderno: m?.orderno || '',
+                orderchannel: m?.orderchannel || '',
+                orderdate: getDate(m?.orderdate || ''),
+                paymentdate: getDateTime(m?.paymentdate || ''),
+                product: m?.product || '',
+                paymentamount: toFixed(m?.paymentamount || 0, 2),
+                warehouse: m?.warehouse || '',
+                invoiceno: m?.invoiceno || '',
+                receiptno: m?.receiptno || '',
+                trackingcode: m?.trackingcode || '',
+                deliverydate: getDateTime(m?.deliverydate || ''),
+                statusdelivery: m?.deliverystatus || '',
+                paymentstatus: m?.paymentstatus,
+                paymentchannel: m?.paymentchannel || '',
+                customername: m?.customername || '',
+                customerphone: m?.customerphone || '',
+                customeraddress: m?.customeraddress || '',
             });
         })
         
@@ -142,14 +138,19 @@ const OrderResult = () => {
         const formValue = {
             page: 1,
             itemperpage: 10000,
-            filterregisterbegin: filterDate?.startDate || '',
-            filterregisterend: filterDate?.endDate || '',
-            filtername: _criteria?.keyword || '',
-            // filterprovince: _criteria.provinces.map((m) => m.name) || '',
+            filterbegin: filterDate?.startDate || '',
+            filterend: filterDate?.endDate || '',
+            keyword: _criteria?.keyword || '',
+            orderchannel: _criteria.channels.map((m) => m.id) || '',
+            repeacts: _criteria.repeacts.map((m) => m.id) || '',
+            spendings: _criteria.spendings.map((m) => m.id) || '',
+            warehouse: _criteria.warehouses.map((m) => m.id) || '',
+            deliverystatus: _criteria.statusTransfers.map((m) => m.id) || '',
+            paymentstatus: _criteria.statusPayments.map((m) => m.id) || '',
         }
 
-        // const res = await getInfluList({ ...formValue });
-        // setData(mappingData(res?.list || []));
+        const res = await getOrderList({ ...formValue });
+        setData(mappingData(res?.list || []));
     }
 
     useEffect(() => {
@@ -215,13 +216,13 @@ const OrderResult = () => {
 
             <Container fluid={true} style={{ marginTop: '30px' }}>
                 <Row style={{ marginBottom: '34px', background: '#F1F1F1', margin: '0px 4px 20px' }}>
-                    <Col md="12" lg="4">
+                    <Col sm="12" md="6" lg="4">
                         <BoxSearch 
                             value={criteria.keyword}
                             onChange={onChangeCriteria}
                         />
                     </Col>
-                    <Col md="12" lg="8">
+                    <Col sm="12" md="6" lg="8">
                         <BoxCriteriaDate
                             type={criteria.customType}
                             startDate={criteria.startDate}
@@ -233,7 +234,7 @@ const OrderResult = () => {
                 </Row>
 
                 <Row>
-                    <Col md='8'>
+                    <Col md='12' lg="12" xl="8">
                         <div className="default-according style-1 faq-accordion" id="accordionoc">
                             <Card style={{ boxShadow: 'none' }}>
                                 <CardHeader style={{ boxShadow: 'none' }}>
@@ -258,7 +259,12 @@ const OrderResult = () => {
                                                             clearButton
                                                             labelKey="name"
                                                             multiple
-                                                            options={item.list}
+                                                            options={
+                                                                item.name === "warehouses" ? warehouses
+                                                                : item.name === "statusTransfers" ? statusTransfers
+                                                                : item.name === "statusPayments" ? statusPayment
+                                                                : item.list
+                                                            }
                                                             placeholder="Please select"
                                                             selected={filter[item.name]}
                                                             onChange={(e) => onChangeFilter(item.name, e)}
@@ -317,128 +323,146 @@ export default OrderResult;
 const columns = [
     {
         name: "ID No.",
-        selector: (row) => row["action"],
+        selector: (row) => row["orderid"],
         sortable: true,
         center: true,
-        minWidth: "100px",
+        wrap: true,
+        minWidth: "150px",
     },
     {
         name: "Order No",
-        selector: (row) => row["no"],
+        selector: (row) => row["orderno"],
         sortable: true,
-        center: true,
-        minWidth: "100px",
+        center: false,
+        wrap: true,
+        minWidth: "250px",
     },
     {
         name: "ช่องทางการขาย",
-        selector: (row) => row["firstname"],
+        selector: (row) => row["orderchannel"],
         sortable: true,
-        center: false,
+        center: true,
+        wrap: true,
         minWidth: "150px",
     },
     {
         name: "วันที่สั่งซื้อ",
-        selector: (row) => row["lastname"],
+        selector: (row) => row["orderdate"],
         sortable: true,
-        center: false,
+        center: true,
+        wrap: true,
         minWidth: "150px",
     },
     {
         name: "วันที่ชำระ",
-        selector: (row) => row["tiktokaccount"],
+        selector: (row) => row["paymentdate"],
         sortable: true,
         center: true,
+        wrap: true,
         minWidth: "200px",
     },
     {
         name: "สินค้า",
-        selector: (row) => row["follower"],
+        selector: (row) => row["product"],
         sortable: true,
-        center: true,
-        minWidth: "130px",
+        center: false,
+        wrap: true,
+        minWidth: "300px",
     },
     {
         name: "จำนวนเงิน",
-        selector: (row) => row["like"],
+        selector: (row) => row["paymentamount"],
         sortable: true,
         center: true,
+        wrap: true,
         minWidth: "130px",
     },
     {
         name: "รหัสคลัง/สาขา",
-        selector: (row) => row["heart"],
+        selector: (row) => row["warehouse"],
         sortable: true,
         center: true,
-        minWidth: "130px",
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "Invoice No",
-        selector: (row) => row["vdo"],
+        selector: (row) => row["invoiceno"],
         sortable: true,
-        center: true,
-        minWidth: "130px",
+        center: false,
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "Receipt No",
-        selector: (row) => row["share"],
+        selector: (row) => row["receiptno"],
         sortable: true,
-        center: true,
-        minWidth: "130px",
+        center: false,
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "Delivery No",
-        selector: (row) => row["engagement"],
+        selector: (row) => row["trackingcode"],
         sortable: true,
-        center: true,
-        minWidth: "150px",
+        center: false,
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "Delivery date",
-        selector: (row) => row["registerdate"],
+        selector: (row) => row["deliverydate"],
         sortable: true,
         center: true,
-        minWidth: "150px",
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "Status จัดส่ง",
-        selector: (row) => row["location"],
+        selector: (row) => row["deliverystatus"],
         sortable: true,
         center: true,
-        minWidth: "130px",
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "Status ชำระเงิน",
-        selector: (row) => row["gender"],
+        selector: (row) => row["paymentstatus"],
         sortable: true,
         center: true,
-        minWidth: "130px",
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "ช่องทางชำระเงิน",
-        selector: (row) => row["year"],
+        selector: (row) => row["paymentchannel"],
         sortable: true,
         center: true,
-        minWidth: "130px",
+        wrap: true,
+        minWidth: "200px",
     },
       {
         name: "ลูกค้า",
-        selector: (row) => row["year"],
+        selector: (row) => row["customername"],
         sortable: true,
-        center: true,
-        minWidth: "130px",
+        center: false,
+        wrap: true,
+        minWidth: "200px",
     },
       {
         name: "เบอร์ติดต่อ",
-        selector: (row) => row["year"],
+        selector: (row) => row["customerphone"],
         sortable: true,
-        center: true,
-        minWidth: "130px",
+        center: false,
+        wrap: true,
+        minWidth: "200px",
     },
       {
         name: "Zip Code",
-        selector: (row) => row["year"],
+        selector: (row) => row["customeraddress"],
         sortable: true,
-        center: true,
-        minWidth: "130px",
+        center: false,
+        wrap: true,
+        minWidth: "400px",
     },
 ]

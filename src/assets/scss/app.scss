@@ -304,3 +304,79 @@
 .checkmark.check-lg::after {
   top: 7px;
 }
+
+.rbt-aux .rbt-close .rbt-close-content {
+  display: none !important;
+}
+
+.rbt-token .rbt-token-remove-button .rbt-close-content {
+  font-size: 24px;
+}
+
+/* container ของ input-multi */
+.rbt-input-multi {
+  display: flex !important;
+  flex-wrap: nowrap !important; /* ห้าม wrap ขึ้นบรรทัดใหม่ */
+  overflow-x: auto; /* ให้เลื่อนแนวนอนได้ถ้าเกิน width */
+  align-items: center;
+}
+
+/* token แต่ละตัว */
+.rbt-token.rbt-token-removeable {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto; /* ไม่ขยายตาม container */
+  max-width: 200px; /* กำหนดความกว้างสูงสุดของ tag */
+  margin-right: 5px;
+}
+
+/* label ข้อความใน token */
+.rbt-token.rbt-token-removeable .rbt-token-label {
+  white-space: nowrap; /* ไม่ wrap */
+  overflow: hidden; /* ซ่อนเกินพื้นที่ */
+  text-overflow: ellipsis; /* แสดง … */
+  max-width: calc(100% - 20px); /* ป้องกันโดน close button กินพื้นที่ */
+}
+
+/* ปุ่ม close */
+.rbt-token.rbt-token-removeable .rbt-close.rbt-token-remove-button {
+  flex: 0 0 auto;
+  margin-left: 5px;
+  margin-bottom: 2px;
+}
+
+.default-according.style-1 button {
+  width: auto;
+}
+
+input.custom-checkbox-3 + label::before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  width: 19px;
+  height: 19px;
+  left: 0;
+  margin-left: -16px;
+  border: 1px solid #ffffff;
+  border-radius: 3px;
+  background-color: #ffffff;
+  transition:
+    border 0.15s ease-in-out,
+    color 0.15s ease-in-out;
+}
+
+/* เมื่อ checkbox ที่มี class custom-checkbox-2 ถูกติ๊ก */
+input.custom-checkbox-3:checked + label::before {
+  background-color: #ffffff;
+  border-color: #ffffff;
+}
+
+/* ตัวเลือก ✔ แสดงเฉพาะ custom-checkbox-2 */
+input.custom-checkbox-3:checked + label::after {
+  content: "✔";
+  position: absolute;
+  left: 4px;
+  top: -3px;
+  font-size: 16px;
+  color: black;
+}

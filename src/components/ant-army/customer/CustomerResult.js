@@ -2,15 +2,13 @@ import React, { Fragment, useEffect, useState } from 'react';
 import BreadCrumb from '../../../layout/Breadcrumb'
 import { Container, Row, Col, Card, CardBody, CardHeader, Button, Collapse, CardFooter } from 'reactstrap'
 import DataTable from 'react-data-table-component'
-import { getDate, getFilterDate, getFilterMinMax, getGender, getYearOld, toFixed } from '../../../util/helpper';
+import { getFilterDate, toFixed } from '../../../util/helpper';
 import { Filters } from '../../../constant';
-import { BoxCriteriaDate, BoxCustomDate, BoxCustomType, BoxFilter, BoxSearch } from '../criteria/Criteria';
-import { useNavigate } from 'react-router';
-import { getInfluList } from '../../../util/influ';
-import useProvince from '../../../util/useProvince';
-import useProductType from '../../../util/useProductType';
+import { BoxCriteriaDate, BoxSearch } from '../criteria/Criteria';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { Upload } from 'react-feather';
+import { getCustomerList } from '../../../util/customer';
+import CustomerHistory from './CustomerHistory';
 
 const customStyles = {
     headCells: {
@@ -74,14 +72,13 @@ const init = {
 }
 
 const CustomerResult = () => {
-    const navigate = useNavigate();
     const [data, setData] = useState([]);
     const [isFilter, setIsFilter] = useState(false);
     const [filter, setFilter] = useState({ ...init });
     const [isHealth, setIsHealth] = useState(true);
 
-    const masterProvince = useProvince();
-    const masterProductType = useProductType();
+    const [isOpen, setIsOpen] = useState(false);
+    const [history, setHistory] = useState([]);
 
     const [criteria, setCriteria] = useState({
         customType: '',
@@ -91,8 +88,9 @@ const CustomerResult = () => {
         ...init
     })
 
-    const onClickDetail = (id) => {
-        navigate(`${process.env.PUBLIC_URL}/influ/detail/${id}`);
+    const onClickDetail = (_list) => {
+        setHistory(_list);
+        setIsOpen(true);
     }
         
     function mappingData(data){
@@ -102,7 +100,7 @@ const CustomerResult = () => {
             list.push({
                 action: (
                     <div>
-                      <span onClick={() => onClickDetail(m.profileid)}>
+                      <span onClick={() => onClickDetail(m.orderhistory)}>
                         <i
                           className="fa fa-eye"
                           style={{
@@ -117,19 +115,15 @@ const CustomerResult = () => {
                     </div>
                 ),
                 no: i + 1,
-                firstname: m?.firstname || '',
-                lastname: m?.lastname || '',
-                tiktokaccount: m?.tiktokprofile?.user || '',
-                follower: toFixed(m?.tiktokprofile?.followercount || 0),
-                like: toFixed(m?.tiktokprofile?.likecount || 0),
-                heart: toFixed(m?.tiktokprofile?.heartcount || 0),
-                vdo: toFixed(m?.tiktokprofile?.videocount || 0),
-                share: toFixed(m?.tiktokprofile?.sharecount || 0),
-                engagement: toFixed(m?.tiktokprofile?.engagementcount || 0),
-                registerdate: getDate(m?.created || ''),
-                location: m?.address?.province || '',
-                gender: getGender(m?.gender || ''),
-                year: getYearOld(m?.bhd || ''),
+                customerid: m?.customerid || '',
+                customername: m?.customername || '',
+                phone: m?.phone || '',
+                address: m?.address || '',
+                totalspent: toFixed(m?.totalspent || 0, 2),
+                totalpurchase: toFixed(m?.totalpurchase || 0),
+                totalaverage: toFixed(m?.totalaverage || 0, 2),
+                product: m?.product || '',
+                orderchannel: m?.orderchannel || '',
             });
         })
         
@@ -142,14 +136,13 @@ const CustomerResult = () => {
         const formValue = {
             page: 1,
             itemperpage: 10000,
-            filterregisterbegin: filterDate?.startDate || '',
-            filterregisterend: filterDate?.endDate || '',
-            filtername: _criteria?.keyword || '',
-            // filterprovince: _criteria.provinces.map((m) => m.name) || '',
+            filterbegin: filterDate?.startDate || '',
+            filterend: filterDate?.endDate || '',
+            keyword: _criteria?.keyword || '',
         }
 
-        // const res = await getInfluList({ ...formValue });
-        // setData(mappingData(res?.list || []));
+        const res = await getCustomerList({ ...formValue });
+        setData(mappingData(res?.list || []));
     }
 
     useEffect(() => {
@@ -213,15 +206,21 @@ const CustomerResult = () => {
                 setIsHealth={setIsHealth}
             />
 
+            <CustomerHistory 
+                isOpen={isOpen}
+                datalist={history}
+                setOpen={() => setIsOpen(false)}
+            />
+
             <Container fluid={true} style={{ marginTop: '30px' }}>
                 <Row style={{ marginBottom: '34px', background: '#F1F1F1', margin: '0px 4px 20px' }}>
-                    <Col md="12" lg="4">
+                    <Col sm="12" md="6" lg="4">
                         <BoxSearch 
                             value={criteria.keyword}
                             onChange={onChangeCriteria}
                         />
                     </Col>
-                    <Col md="12" lg="8">
+                    <Col sm="12" md="6" lg="8">
                         <BoxCriteriaDate
                             type={criteria.customType}
                             startDate={criteria.startDate}
@@ -232,8 +231,8 @@ const CustomerResult = () => {
                     </Col>
                 </Row>
 
-                <Row>
-                    <Col md='8'>
+                {/* <Row>
+                    <Col md='12' lg="12" xl="8">
                         <div className="default-according style-1 faq-accordion" id="accordionoc">
                             <Card style={{ boxShadow: 'none' }}>
                                 <CardHeader style={{ boxShadow: 'none' }}>
@@ -276,7 +275,7 @@ const CustomerResult = () => {
                             </Card>
                         </div>
                     </Col>
-                </Row>
+                </Row> */}
                 <Row>
                     <Col sm="12">
                         <Card style={{ boxShadow: 'none' }}>
@@ -317,79 +316,82 @@ export default CustomerResult;
 const columns = [
     {
         name: "ID No.",
-        selector: (row) => row["action"],
+        selector: (row) => row["customerid"],
         sortable: true,
         center: true,
-        minWidth: "100px",
+        wrap: true,
+        minWidth: "200px",
     },
     {
-        name: "ลูกค้า ชื่อ",
-        selector: (row) => row["no"],
-        sortable: true,
-        center: true,
-        minWidth: "100px",
-    },
-    {
-        name: "ลูกค้า นามสกุล",
-        selector: (row) => row["firstname"],
+        name: "ลูกค้า ชื่อ - นามสกุล",
+        selector: (row) => row["customername"],
         sortable: true,
         center: false,
-        minWidth: "150px",
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "เบอร์ติดต่อ",
-        selector: (row) => row["lastname"],
+        selector: (row) => row["phone"],
         sortable: true,
-        center: false,
+        center: true,
+        wrap: true,
         minWidth: "150px",
     },
     {
         name: "Zip code",
-        selector: (row) => row["tiktokaccount"],
+        selector: (row) => row["address"],
         sortable: true,
-        center: true,
-        minWidth: "200px",
+        center: false,
+        wrap: true,
+        minWidth: "400px",
     },
     {
         name: "จำนวนเงิน (รวม)",
-        selector: (row) => row["follower"],
+        selector: (row) => row["totalspent"],
         sortable: true,
         center: true,
-        minWidth: "130px",
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "จำนวนการซื้อ",
-        selector: (row) => row["like"],
+        selector: (row) => row["totalpurchase"],
         sortable: true,
         center: true,
+        wrap: true,
         minWidth: "130px",
     },
     {
         name: "จำนวนเงิน (เฉลี่ยต่อการซื้อ)",
-        selector: (row) => row["heart"],
+        selector: (row) => row["totalaverage"],
         sortable: true,
         center: true,
-        minWidth: "130px",
+        wrap: true,
+        minWidth: "240px",
     },
     {
         name: "สินค้า",
-        selector: (row) => row["vdo"],
+        selector: (row) => row["product"],
         sortable: true,
-        center: true,
-        minWidth: "130px",
+        center: false,
+        wrap: true,
+        minWidth: "400px",
     },
     {
         name: "ช่องทางการซื้อ",
-        selector: (row) => row["share"],
+        selector: (row) => row["orderchannel"],
         sortable: true,
         center: true,
-        minWidth: "130px",
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "ประวัติการสั่งซื้อ",
-        selector: (row) => row["engagement"],
+        selector: (row) => row["action"],
         sortable: true,
         center: true,
+        wrap: true,
         minWidth: "150px",
     },
 ]

@@ -224,8 +224,11 @@ export const BoxHeader2 = ({ isHealth = true, setIsHealth }) => {
                     padding: '4px 14px',
                     width: '120px',
                     textAlign: 'center',
-                    cursor: 'pointer',
-                }} onClick={() => setIsHealth(false)}>
+                    cursor: 'not-allowed',
+                }} 
+                    // onClick={() => setIsHealth(false)}
+                
+                >
                     <span style={{ fontSize: '18px', fontWeight: 600 }}>PETS</span>
                 </div>
                 <div style={{

@@ -2,15 +2,13 @@ import React, { Fragment, useEffect, useState } from 'react';
 import BreadCrumb from '../../../layout/Breadcrumb'
 import { Container, Row, Col, Card, CardBody, CardHeader, Button, Collapse, CardFooter } from 'reactstrap'
 import DataTable from 'react-data-table-component'
-import { getDate, getFilterDate, getFilterMinMax, getGender, getYearOld, toFixed } from '../../../util/helpper';
+import { getFilterDate, toFixed } from '../../../util/helpper';
 import { Filters } from '../../../constant';
-import { BoxCriteriaDate, BoxCustomDate, BoxCustomType, BoxFilter, BoxSearch } from '../criteria/Criteria';
+import { BoxCriteriaDate, BoxSearch } from '../criteria/Criteria';
 import { useNavigate } from 'react-router';
-import { getInfluList } from '../../../util/influ';
-import useProvince from '../../../util/useProvince';
-import useProductType from '../../../util/useProductType';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { Upload } from 'react-feather';
+import { getProductList, getProductMaster } from '../../../util/product';
 
 const customStyles = {
     headCells: {
@@ -21,56 +19,22 @@ const customStyles = {
     },
 };
 
-const channels = [
-    { id: 'Shopee', name: 'Shopee' }
-];
-
-const repeacts = [];
-const spendings = [];
-const warehouses = [];
-const statusTransfers = [];
-const statusPayments = [];
-
 const filterList = [
     {
-        title: 'Order Channel',
-        name: 'channels',
-        list: channels
+        title: 'Category',
+        name: 'category',
+        list: []
     },
     {
-        title: 'Repeact purchase',
-        name: 'repeacts',
-        list: repeacts
-    },
-    {
-        title: 'Spending',
-        name: 'spendings',
-        list: spendings
-    },
-    {
-        title: 'Warehouse',
-        name: 'warehouses',
-        list: warehouses
-    },
-    {
-        title: 'Status จัดส่ง',
-        name: 'statusTransfers',
-        list: statusTransfers
-    },
-    {
-        title: 'Status ชำระเงิน',
-        name: 'statusPayments',
-        list: statusPayments
+        title: 'Status',
+        name: 'status',
+        list: []
     },
 ]
 
 const init = {
-    channels: [],
-    repeacts: [],
-    spendings: [],
-    warehouses: [],
-    statusTransfers: [],
-    statusPayments: [],
+    category: [],
+    status: []
 }
 
 const OrderShopeeResult = () => {
@@ -80,8 +44,22 @@ const OrderShopeeResult = () => {
     const [filter, setFilter] = useState({ ...init });
     const [isHealth, setIsHealth] = useState(true);
 
-    const masterProvince = useProvince();
-    const masterProductType = useProductType();
+    const [category, setCategory] = useState([]);
+    const [status, setStatus] = useState([]);
+
+    useEffect(() => {
+        getMasterData();
+    }, [])
+
+    const getMasterData = async () => {
+        const res = await getProductMaster({});
+        setCategory(
+            (res?.data?.categories || []).map((m) => ({ id: m, name: m }))
+        );
+        setStatus(
+            (res?.data?.statuses || []).map((m) => ({ id: m, name: m }))
+        );
+    }
 
     const [criteria, setCriteria] = useState({
         customType: '',
@@ -92,7 +70,7 @@ const OrderShopeeResult = () => {
     })
 
     const onClickDetail = (id) => {
-        navigate(`${process.env.PUBLIC_URL}/influ/detail/${id}`);
+
     }
         
     function mappingData(data){
@@ -117,19 +95,13 @@ const OrderShopeeResult = () => {
                     </div>
                 ),
                 no: i + 1,
-                firstname: m?.firstname || '',
-                lastname: m?.lastname || '',
-                tiktokaccount: m?.tiktokprofile?.user || '',
-                follower: toFixed(m?.tiktokprofile?.followercount || 0),
-                like: toFixed(m?.tiktokprofile?.likecount || 0),
-                heart: toFixed(m?.tiktokprofile?.heartcount || 0),
-                vdo: toFixed(m?.tiktokprofile?.videocount || 0),
-                share: toFixed(m?.tiktokprofile?.sharecount || 0),
-                engagement: toFixed(m?.tiktokprofile?.engagementcount || 0),
-                registerdate: getDate(m?.created || ''),
-                location: m?.address?.province || '',
-                gender: getGender(m?.gender || ''),
-                year: getYearOld(m?.bhd || ''),
+                id: m?.id || '',
+                name: m?.name || '',
+                sku: m?.sku || '',
+                category: m?.category || '',
+                saleprice: m?.saleprice || '',
+                stock: m?.stock || '',
+                status: m?.status === 1 ? 'Active' : 'Inactive',
             });
         })
         
@@ -142,14 +114,15 @@ const OrderShopeeResult = () => {
         const formValue = {
             page: 1,
             itemperpage: 10000,
-            filterregisterbegin: filterDate?.startDate || '',
-            filterregisterend: filterDate?.endDate || '',
-            filtername: _criteria?.keyword || '',
-            // filterprovince: _criteria.provinces.map((m) => m.name) || '',
+            filterbegin: filterDate?.startDate || '',
+            filterend: filterDate?.endDate || '',
+            keyword: _criteria?.keyword || '',
+            category: _criteria.category.map((m) => m.id) || '',
+            status: _criteria.status.map((m) => m.id) || '',
         }
 
-        // const res = await getInfluList({ ...formValue });
-        // setData(mappingData(res?.list || []));
+        const res = await getProductList({ ...formValue });
+        setData(mappingData(res?.list || []));
     }
 
     useEffect(() => {
@@ -208,20 +181,20 @@ const OrderShopeeResult = () => {
             <BreadCrumb 
                 parent="Home"
                 subparent="Dashboard"
-                title="Shopee Order"
+                title="Stock"
                 isHealth={isHealth}
                 setIsHealth={setIsHealth}
             />
 
             <Container fluid={true} style={{ marginTop: '30px' }}>
                 <Row style={{ marginBottom: '34px', background: '#F1F1F1', margin: '0px 4px 20px' }}>
-                    <Col md="12" lg="4">
+                    <Col sm="12" md="6" lg="4">
                         <BoxSearch 
                             value={criteria.keyword}
                             onChange={onChangeCriteria}
                         />
                     </Col>
-                    <Col md="12" lg="8">
+                    <Col sm="12" md="6" lg="8">
                         <BoxCriteriaDate
                             type={criteria.customType}
                             startDate={criteria.startDate}
@@ -233,7 +206,7 @@ const OrderShopeeResult = () => {
                 </Row>
 
                 <Row>
-                    <Col md='8'>
+                    <Col md='12' lg="12" xl="8">
                         <div className="default-according style-1 faq-accordion" id="accordionoc">
                             <Card style={{ boxShadow: 'none' }}>
                                 <CardHeader style={{ boxShadow: 'none' }}>
@@ -258,7 +231,11 @@ const OrderShopeeResult = () => {
                                                             clearButton
                                                             labelKey="name"
                                                             multiple
-                                                            options={item.list}
+                                                            options={
+                                                                item.name === "category" ? category
+                                                                : item.name === "status" ? status
+                                                                : item.list
+                                                            }
                                                             placeholder="Please select"
                                                             selected={filter[item.name]}
                                                             onChange={(e) => onChangeFilter(item.name, e)}
@@ -316,38 +293,59 @@ export default OrderShopeeResult;
 
 const columns = [
     {
-        name: "วันที่",
-        selector: (row) => row["action"],
+        name: "ID No.",
+        selector: (row) => row["id"],
         sortable: true,
         center: true,
-        minWidth: "100px",
+        wrap: true,
+        minWidth: "150px",
     },
     {
-        name: "Zort Order",
-        selector: (row) => row["no"],
-        sortable: true,
-        center: true,
-        minWidth: "100px",
-    },
-    {
-        name: "Shopee Order",
-        selector: (row) => row["firstname"],
+        name: "Name",
+        selector: (row) => row["name"],
         sortable: true,
         center: false,
-        minWidth: "150px",
+        wrap: true,
+        minWidth: "400px",
+    },
+    {
+        name: "SKU",
+        selector: (row) => row["sku"],
+        sortable: true,
+        center: false,
+        wrap: true,
+        minWidth: "200px",
+    },
+    {
+        name: "Category",
+        selector: (row) => row["category"],
+        sortable: true,
+        center: true,
+        wrap: true,
+        minWidth: "200px",
+    },
+    {
+        name: "Sale price",
+        selector: (row) => row["saleprice"],
+        sortable: true,
+        center: true,
+        wrap: true,
+        minWidth: "200px",
+    },
+    {
+        name: "Stock",
+        selector: (row) => row["stock"],
+        sortable: true,
+        center: true,
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "Status",
-        selector: (row) => row["lastname"],
-        sortable: true,
-        center: false,
-        minWidth: "150px",
-    },
-    {
-        name: "",
-        selector: (row) => row["tiktokaccount"],
+        selector: (row) => row["status"],
         sortable: true,
         center: true,
-        minWidth: "200px",
+        wrap: true,
+        minWidth: "100px",
     },
 ]

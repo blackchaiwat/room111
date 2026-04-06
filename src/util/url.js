@@ -4,21 +4,15 @@ const URL = {
     LOGIN: `${URL_ENDPOINT}/commercedev/api/admin/loginwithuser`,
     PROFILE: `${URL_ENDPOINT}/commercedev/api/admin/getinfo`,
 
-    PROVINCE: `${URL_ENDPOINT}/commercedev/api/general/province`,
-    PRODUCT_TYPE: `${URL_ENDPOINT}/commercedev/api/general/producttype`,
-    BANK: `${URL_ENDPOINT}/commercedev/api/general/bank`,
+    DASHBOARD: `${URL_ENDPOINT}/commercedev/api/cms/dashboard/commerce`,
+    ORDER_LIST: `${URL_ENDPOINT}/commercedev/api/cms/order/list`,
+    ORDER_DETAIL: `${URL_ENDPOINT}/commercedev/api/cms/order/detail`,
+    ORDER_MASTER: `${URL_ENDPOINT}/commercedev/api/cms/order/masterdata`,
 
-    AUDIENCE_LIST: `${URL_ENDPOINT}/commercedev/api/cms/manage/broadcastaudience/list`,
-    AUDIENCE_ADD: `${URL_ENDPOINT}/commercedev/api/cms/manage/broadcastaudience/add`,
-    AUDIENCE_EDIT: `${URL_ENDPOINT}/commercedev/api/cms/manage/broadcastaudience/edit`,
+    PRODUCT_LIST: `${URL_ENDPOINT}/commercedev/api/cms/zortproduct/list`,
+    PRODUCT_MASTER: `${URL_ENDPOINT}/commercedev/api/cms/product/masterdata`,
 
-    JOB_LIST: `${URL_ENDPOINT}/commercedev/api/cms/manage/job/list`,
-    JOB_ADD: `${URL_ENDPOINT}/commercedev/api/cms/manage/job/add`,
-    JOB_EDIT: `${URL_ENDPOINT}/commercedev/api/cms/manage/job/edit`,
-    JOB_APPROVE: `${URL_ENDPOINT}/commercedev/api/cms/manage/job/approve`,
-
-    INFLU_LIST: `${URL_ENDPOINT}/commercedev/api/cms/manage/influencer/list`,
-    INFLU_DETAIL: `${URL_ENDPOINT}/commercedev/api/cms/manage/influencer/detail`,
+    CUSTOMER_LIST: `${URL_ENDPOINT}/commercedev/api/cms/customer/list`,
 
     SKU_LIST: `${URL_ENDPOINT}/commercedev/api/product/list`,
     SKU_ADD: `${URL_ENDPOINT}/commercedev/api/product/add`,

@@ -8,26 +8,26 @@ export default function DashboardTotal({ data }) {
         <Col xs="6" sm="6" md="6" lg="3" xl="3">
             <BoxTotal 
                 label="จำนวนคำสั่งซื้อทั้งหมด"
-                value={1000000}
+                value={data?.stat_summary?.totalpurchasecount || 0}
             />
         </Col>
         <Col xs="6" sm="6" md="6" lg="3" xl="3">
             <BoxTotal 
                 label="จำนวนที่ส่งสำเร็จ"
-                value={900000}
+                value={data?.stat_summary?.totalsuccesscount || 0}
             />
         </Col>
         <Col xs="6" sm="6" md="6" lg="3" xl="3">
             <BoxTotal 
                 label="คำสั่งซื้อจาก Shopee"
-                value={200000}
+                value={(data?.stat_summary_by_channel || []).find((f) => (f?.channel || '').toLowerCase() === "shopee")?.count || 0}
                 bgColor='#EA2507'
             />
         </Col>
         <Col xs="6" sm="6" md="6" lg="3" xl="3">
             <BoxTotal 
                 label="คำสั่งซื้อจาก Lazada"
-                value={8888888}
+                value={(data?.stat_summary_by_channel || []).find((f) => (f?.channel || '').toLowerCase() === "lazada")?.count || 0}
                 bgColor='#276CBB'
             />
         </Col>

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts'
 
-export default function BoxChartPie({ title = '', id = '', height = 270, data = [], labels = [] }){
+export default function BoxTopCategory({ title = '', id = '', height = 270, data = [], labels = [] }){
     const [series, setSeries] = useState([]);
 
     useEffect(() => {
         const list = [];
         labels.forEach((f) => {
-            const find = data.find((m) => (m?.channel || '').toLowerCase() === f.toLowerCase());
-            list.push(find?.count || 0);
+            const find = data.find((m) => (m?.category || '').toLowerCase() === f.toLowerCase());
+            list.push(find?.quantity || 0);
         })
         setSeries(list);
     }, [labels, data])

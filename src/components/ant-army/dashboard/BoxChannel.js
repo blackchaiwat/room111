@@ -5,16 +5,16 @@ import { Upload } from 'react-feather';
 import { toFixed } from '../../../util/helpper';
 
 export default function BoxChannel({ data, height }){
-    const labels = ['Facebook', 'Lazada', 'Shopee', 'LINE', 'Shopify'];
+    const labels = ['Facebook', 'Lazada', 'Shopee', 'LINE', 'TIKTOK', 'Shopify'];
     const [result, setResult] = useState([]);
     const [series, setSeries] = useState([]);
 
     useEffect(() => {
-        const list = (data?.dashboard_channel?.stat || []);
+        const list = (data?.stat_summary_by_channel || []);
         const result = [];
         labels.forEach((f) => {
-            const find = list.find((m) => (m?.title || '').toLowerCase() === f.toLowerCase());
-            result.push(find?.value || 0);
+            const find = list.find((m) => (m?.channel || '').toLowerCase() === f.toLowerCase());
+            result.push(find?.amount || 0);
         })
 
         const _series = [

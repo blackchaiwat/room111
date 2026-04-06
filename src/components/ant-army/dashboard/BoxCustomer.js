@@ -10,7 +10,28 @@ export default function BoxCustomer({ data, height }){
 
     
     useEffect(() => {
-        const list = (data?.dashboard_register?.stat || []);
+        const list2 = (data?.stat_purchase_by_date_channel || []);
+
+        const datelist = [...new Set(list2.map((m) => m.date))];
+        const channellist = [...new Set(list2.map((m) => m.channel))];
+        const list = [];
+        datelist.forEach((f) => {
+          const channel = [];
+          channellist.forEach((c) => {
+            const find = list2.find((o) => o.date === f && o.channel === c);
+            channel.push({
+              branch: c,
+              value: find?.count || 0
+            })
+          })
+
+
+          const obj = {
+            date: f,
+            totalcustomer: channel
+          }
+          list.push(obj);
+        })
         
         const _labels = list.map((m) => m.date);
         setLabels(_labels);

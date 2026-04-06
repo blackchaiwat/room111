@@ -17,6 +17,11 @@ export function getDate(value) {
   return moment(value).format('DD/MM/YYYY');
 }
 
+export function getDateTime(value) {
+  if (!value) return '';
+  return moment(value).format('DD/MM/YYYY HH:MM');
+}
+
 export function getGender(value) {
   if (value === 'MALE') return 'ชาย';
   if (value === 'FEMALE') return 'หญิง';

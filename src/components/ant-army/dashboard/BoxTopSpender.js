@@ -19,7 +19,7 @@ export default function BoxTopSpender({ data }){
     const [result, setResult] = useState([]);
 
     useEffect(() => {
-        const list = (data?.dashboard_topspender || []).filter((f, i) => i < 10);
+        const list = (data?.stat_top_spender || []).filter((f, i) => i < 10);
         setResult(mappingData(list));
     }, [data])
 
@@ -49,10 +49,11 @@ export default function BoxTopSpender({ data }){
                     </div>
                 ),
                 no: i + 1,
-                firstname: m?.firstname || '',
+                firstname: m?.customername || '',
                 lastname: m?.lastname || '',
-                purchase: toFixed(m?.repeatpurchase || 0),
-                spending: toFixed(m?.totalspending || 0)
+                phone: m?.phone || '',
+                purchase: toFixed(m?.ordercount || 0),
+                spending: toFixed(m?.totalspent || 0)
             });
         })
         
@@ -97,15 +98,15 @@ const columns = [
         selector: (row) => row["firstname"],
         sortable: false,
         center: false,
-        minWidth: "120px",
+        minWidth: "200px",
     },
-    {
-        name: "Surname",
-        selector: (row) => row["lastname"],
-        sortable: false,
-        center: false,
-        minWidth: "120px",
-    },
+    // {
+    //     name: "Surname",
+    //     selector: (row) => row["lastname"],
+    //     sortable: false,
+    //     center: false,
+    //     minWidth: "120px",
+    // },
     {
         name: "Repeat purchase",
         selector: (row) => row["purchase"],
@@ -141,11 +142,11 @@ const columns = [
         center: true,
         minWidth: "120px",
     },
-    {
-        name: "",
-        selector: (row) => row["action"],
-        sortable: false,
-        center: true,
-        minWidth: "50px",
-    },
+    // {
+    //     name: "",
+    //     selector: (row) => row["action"],
+    //     sortable: false,
+    //     center: true,
+    //     minWidth: "50px",
+    // },
 ]

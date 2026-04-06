@@ -11,6 +11,8 @@ import BoxCountry from './BoxCountry';
 import { getFilterDate } from '../../../util/helpper';
 import { mock_dashboard } from './mock_data';
 import BoxChannel from './BoxChannel';
+import { getDashboard } from '../../../util/dashboard';
+import BoxTopCategory from './BoxTopCategory';
 
 const Dashboard = () => {
   const [data, setData] = useState([]);
@@ -32,9 +34,9 @@ const Dashboard = () => {
 
     console.log(formValue);
 
-    // const res = await getDashboard({ ...formValue });
-    // setData({ ...res });
-    setData({ ...mock_dashboard });
+    const res = await getDashboard({ ...formValue });
+    setData({ ...res });
+    // setData({ ...mock_dashboard });
   }
 
   useEffect(() => {
@@ -111,8 +113,8 @@ const Dashboard = () => {
                       title="Channel (คำสั่งซื้อ)"
                       id="channel-chart"
                       height={270} 
-                      labels={['Lazada', 'Facebook', 'Shopee']}   
-                      data={data?.dashboard_gender?.stat || []}   
+                      labels={['Lazada', 'Facebook', 'Shopee', 'TIKTOK']}   
+                      data={data?.stat_summary_by_channel || []}   
                     />
                   </Col>
 
@@ -121,12 +123,12 @@ const Dashboard = () => {
                   </Col>
 
                   <Col lg="12" xl="5">
-                    <BoxChartPie
+                    <BoxTopCategory
                       title="Top-selling Category"
                       id="channel-chart"
                       height={270} 
-                      labels={['ทรายแมว', 'ของเล่นแมว', 'อาหารแมว']}   
-                      data={data?.dashboard_hearaboutus?.stat || []}   
+                      labels={(data?.stat_top_category || []).map((m) => m.category)}   
+                      data={data?.stat_top_category || []}   
                     />
                   </Col>
         
