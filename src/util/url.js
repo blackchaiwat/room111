@@ -1,6 +1,6 @@
 export const URL_ENDPOINT = "https://developers.promptkai.com";
 
-const path = 'commercedev' // commercedev, commerce
+const path = 'commerce' // commercedev, commerce
 
 const URL = {
     LOGIN: `${URL_ENDPOINT}/${path}/api/admin/loginwithuser`,
