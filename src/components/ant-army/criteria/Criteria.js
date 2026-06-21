@@ -246,7 +246,7 @@ export const BoxHeader2 = ({ isHealth = true, setIsHealth }) => {
     )
 }
 
-export const BoxHeader3 = ({ isResult = true, setIsResult }) => {
+export const BoxHeader3 = ({ isResult = true, setIsResult, type = '' }) => {
     return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
             <div style={{ display: 'flex', gap: '20px' }}>
@@ -258,17 +258,17 @@ export const BoxHeader3 = ({ isResult = true, setIsResult }) => {
                     textAlign: 'center',
                     cursor: 'pointer',
                 }} onClick={() => setIsResult(false)}>
-                    <span style={{ fontSize: '18px', fontWeight: 600 }}>SKU Generator</span>
+                    <span style={{ fontSize: '18px', fontWeight: 600 }}>{type === 'category' ? 'Create Category' : type === 'model' ? 'Create Model' : 'SKU Generator'}</span>
                 </div>
                 <div style={{
                     background: isResult ? 'black' : '#D9D9D9',
                     color: isResult ? 'white' : 'black',
                     padding: '4px 14px',
-                    width: '150px',
+                    width: '170px',
                     textAlign: 'center',
                     cursor: 'pointer',
                 }} onClick={() => setIsResult(true)}>
-                    <span style={{ fontSize: '18px', fontWeight: 600 }}>SKU Data</span>
+                    <span style={{ fontSize: '18px', fontWeight: 600 }}>{type === 'category' ? 'Category Data' : type === 'model' ? 'Model Data' : 'SKU Data'}</span>
                 </div>
             </div>
         </div>

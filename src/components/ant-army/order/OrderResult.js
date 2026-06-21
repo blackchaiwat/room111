@@ -73,6 +73,8 @@ const OrderResult = () => {
     const [isFilter, setIsFilter] = useState(false);
     const [filter, setFilter] = useState({ ...init });
     const [isHealth, setIsHealth] = useState(true);
+    const [resetPagination, setResetPagination] = useState(false);
+
 
     const [warehouses, setWarehouses] = useState([]);
     const [statusTransfers, setStatusTransfers] = useState([]);
@@ -151,6 +153,7 @@ const OrderResult = () => {
 
         const res = await getOrderList({ ...formValue });
         setData(mappingData(res?.list || []));
+        setResetPagination(prev => !prev);
     }
 
     useEffect(() => {
@@ -307,6 +310,7 @@ const OrderResult = () => {
                                             </div>
                                         }
                                         persistTableHead
+                                        paginationResetDefaultPage={resetPagination}
                                     />
                                 </div>
                             </CardBody>

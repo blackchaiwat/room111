@@ -30,6 +30,7 @@ const Breadcrumbs = (props) => {
                             <BoxHeader3
                                 isResult={props.isResult}
                                 setIsResult={props.setIsResult}
+                                type={props.type}
                             />
                         </Col>
                     )}

@@ -15,7 +15,24 @@ export const MENUITEMS = [
     {
         title: 'Stock', img: 'stock.png', icon: Home, type: 'link', path: `${process.env.PUBLIC_URL}/dashboard/shopee-order`, active: false
     },
+    // {
+    //     title: 'SKU', img: 'sku.png', icon: Home, type: 'link', path: `${process.env.PUBLIC_URL}/dashboard/sku`, active: false
+    // },
     {
-        title: 'SKU', img: 'sku.png', icon: Home, type: 'link', path: `${process.env.PUBLIC_URL}/dashboard/sku`, active: false
+        title: 'SKU', img: 'sku.png', type: 'link', icon: Home, active: false,
+        children: [
+            { 
+                title: 'SKU Data', type: 'link', path: `${process.env.PUBLIC_URL}/dashboard/sku?tab=2`, active: false
+            },
+            { 
+                title: 'Generate SKU', type: 'link', path: `${process.env.PUBLIC_URL}/dashboard/sku?tab=1`, active: false
+            },
+             { 
+                title: 'Category', type: 'link', path: `${process.env.PUBLIC_URL}/dashboard/category`, active: false
+            },
+             { 
+                title: 'Model', type: 'link', path: `${process.env.PUBLIC_URL}/dashboard/model`, active: false
+            }
+        ]
     },
 ]

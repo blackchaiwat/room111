@@ -1,46 +1,45 @@
 import { Fragment, useEffect, useState } from 'react';
 import BreadCrumb from '../../../layout/Breadcrumb'
 import { Container } from 'reactstrap'
-import SkuResult from './SkuResult';
-import SkuForm from './SkuForm';
+import ModelResult from './ModelResult';
+import ModelForm from './ModelForm';
 
-const SkuView = () => {
+const ModelView = () => {
     const [isResult, setIsResult] = useState(false);
 
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const tab = params.get('tab');
+    const [dataEdit, setDataEdit] = useState(null);
 
-        if (tab === '2') {
-            setIsResult(true);
+    useEffect(() => {
+        if (dataEdit) {
+            setIsResult(false);
         }
-    }, [])
+    }, [dataEdit])
 
     return (
         <Fragment>
             <BreadCrumb 
                 parent="Home"
                 subparent="Dashboard"
-                title="SKU"
+                title="Model"
                 isResult={isResult}
                 setIsResult={setIsResult}
+                type="model"
             />
 
             <Container fluid={true} style={{ marginTop: '30px' }}>
                 <div style={{ textAlign: 'center', borderBottom: '1px solid black', marginBottom: '20px' }}>
-                    <h4>Stock Keeping Unit SKU Generator</h4>
-                    <p style={{ color: '#8E8E8E' }}>Generate SKUs for your products and variants in minutes.</p>
+                    <h4 style={{ marginBottom: "20px" }}>Model</h4>
                 </div>
 
                 {!isResult && (
-                    <SkuForm />
+                    <ModelForm dataEdit={dataEdit} setDataEdit={setDataEdit} />
                 )}
                 {isResult && (
-                    <SkuResult />
+                    <ModelResult setDataEdit={setDataEdit} />
                 )}
             </Container>
         </Fragment>
     );
 };
 
-export default SkuView;
+export default ModelView;
