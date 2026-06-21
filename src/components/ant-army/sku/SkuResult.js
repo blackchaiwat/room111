@@ -103,7 +103,7 @@ const SkuResult = () => {
                 remark: m?.remark || '',
                 model: masterModel.find((f) => f.modelcode === m.modelcode)?.modelname || m.modelcode,
                 category: masterCategory.find((f) => f.categorycode === m.categorycode)?.categoryname || m.categorycode,
-                barcode: m?.barcode ? <a href={m.barcode} target="_blank">Image Link</a> : '',
+                barcode: m?.barcodelink ? <a href={m.barcodelink} target="_blank">Image Link</a> : '',
             });
         })
         
