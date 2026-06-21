@@ -35,7 +35,9 @@ const Layout = ({ children, ...rest }) => {
             style={{
               background:
                 window.location.href.includes("/dashboard/main") ||
-                window.location.href.includes("/dashboard/sku")
+                window.location.href.includes("/dashboard/sku") ||
+                window.location.href.includes("/dashboard/model") ||
+                window.location.href.includes("/dashboard/category")
                   ? "white"
                   : "#777777",
             }}

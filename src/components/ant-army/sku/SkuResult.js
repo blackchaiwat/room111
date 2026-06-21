@@ -7,6 +7,7 @@ import { getSkuExport, getSkuList } from '../../../util/sku';
 import { BoxError, BoxLoading } from '../criteria/BoxAlert';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { getMasterCategory, getMasterModel } from '../../../util/masterdata';
 
 const customStyles = {
     headCells: {
@@ -26,6 +27,8 @@ const categoryList = {
 const SkuResult = () => {
     const [dataList, setDataList] = useState([]);
     const [datas, setDatas] = useState([]);
+    const [resetPagination, setResetPagination] = useState(false);
+
 
     const [idSelect, setIdSelect] = useState([]);
     const [isAll, setIsAll] = useState(false);
@@ -37,6 +40,22 @@ const SkuResult = () => {
         producttype: 'all',
         keyword: '',
     })
+
+    const [masterModel, setMasterModel] = useState([]);
+    const [masterCategory, setMasterCategory] = useState([]);
+
+    const getMaster = async () => {
+
+        const _model = await getMasterModel();
+        setMasterModel(_model?.list || []);
+
+        const _category = await getMasterCategory();
+        setMasterCategory(_category?.list || []);
+    }
+
+    useEffect(() => {
+        getMaster();
+    }, [])
 
     const onSelectId = (id) => {
         if (idSelect.indexOf(id) > -1) {
@@ -81,7 +100,10 @@ const SkuResult = () => {
                 no: i + 1,
                 productname: m?.productname || '',
                 sku: m?.sku || '',
-                category: categoryList[m?.category || ''] || m?.category,
+                remark: m?.remark || '',
+                model: masterModel.find((f) => f.modelcode === m.modelcode)?.modelname || m.modelcode,
+                category: masterCategory.find((f) => f.categorycode === m.categorycode)?.categoryname || m.categorycode,
+                barcode: m?.barcodelink ? <a href={m.barcodelink} target="_blank">Image Link</a> : '',
             });
         })
         
@@ -102,11 +124,12 @@ const SkuResult = () => {
 
         setDataList(mappingData(res?.list || []));
         setDatas(res?.list || []);
+        setResetPagination(prev => !prev);
     }
 
     useEffect(() => {
         fetch(criteria);
-    }, [criteria])
+    }, [criteria, masterCategory, masterModel])
 
     const onChangeCriteria = (name, value) => {
         setCriteria({
@@ -198,14 +221,14 @@ const SkuResult = () => {
 
                         <BoxFilter
                             text='Human'
-                            isActive={criteria.producttype === 'human'}
-                            onChange={() => onChangeCriteria('producttype', 'human')}
+                            isActive={criteria.producttype === 'H'}
+                            onChange={() => onChangeCriteria('producttype', 'H')}
                         />
 
                         <BoxFilter 
                             text='Pets'
-                            isActive={criteria.producttype === 'pets'}
-                            onChange={() => onChangeCriteria('producttype', 'pets')}
+                            isActive={criteria.producttype === 'P'}
+                            onChange={() => onChangeCriteria('producttype', 'P')}
                         />
                     </div>
                 </Col>
@@ -259,6 +282,7 @@ const SkuResult = () => {
                                         </div>
                                     }
                                     persistTableHead
+                                    paginationResetDefaultPage={resetPagination}
                                 />
                             </div>
                         </CardBody>
@@ -284,13 +308,14 @@ const columns = [
         selector: (row) => row["no"],
         sortable: true,
         center: true,
-        minWidth: "200px",
+        minWidth: "100px",
     },
     {
         name: "Product Name",
         selector: (row) => row["productname"],
         sortable: true,
         center: false,
+        wrap: true,
         minWidth: "300px",
     },
     {
@@ -298,13 +323,38 @@ const columns = [
         selector: (row) => row["sku"],
         sortable: true,
         center: false,
-        minWidth: "300px",
+        wrap: true,
+        minWidth: "200px",
     },
     {
         name: "Category",
         selector: (row) => row["category"],
         sortable: true,
         center: true,
+        wrap: true,
         minWidth: "200px",
+    },
+    {
+        name: "Model",
+        selector: (row) => row["model"],
+        sortable: true,
+        center: true,
+        wrap: true,
+        minWidth: "200px",
+    },
+    {
+        name: "Barcode",
+        selector: (row) => row["barcode"],
+        sortable: true,
+        center: true,
+        minWidth: "200px",
+    },
+    {
+        name: "Remark",
+        selector: (row) => row["remark"],
+        sortable: true,
+        center: true,
+        wrap: true,
+        minWidth: "300px",
     },
 ]

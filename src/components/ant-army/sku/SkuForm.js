@@ -5,54 +5,27 @@ import { getSkuAdd } from '../../../util/sku';
 import { BoxError, BoxLoading, BoxSuccess } from '../criteria/BoxAlert';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { getMasterCategory, getMasterModel, getMasterProductType, getMasterSaleType, getMasterSellingUnit } from '../../../util/masterdata';
 
-const masterCategory = [
-    { value: 'HW', label: 'Health & Wellness' },
-    { value: 'CL', label: 'Cleaning' },
-    { value: 'VT', label: 'Vitamin' },
-    { value: 'HR', label: 'Herb' },
-    { value: 'CT', label: 'Catnip' },
-]
+function randomCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-const masterModel = [
-    { value: 'LMB', label: 'Lamoonbaby' },
-    { value: 'VTC', label: 'VitaminC' },
-]
+    let result = '';
 
-const masterSalesType = [
-    { value: 'M', label: 'Manufactured' },
-    { value: 'C', label: 'Consignment' },
-    { value: 'D', label: 'Distributor' },
-    { value: 'R', label: 'Retail' },
-]
+    for (let i = 0; i < 5; i++) {
+        result += chars.charAt(
+            Math.floor(Math.random() * chars.length)
+        );
+    }
 
-const categoryList = {
-    'VT': 'Vitamin',
-    'HR': 'Herb',
-    'CT': 'Catnip',
+    return result;
 }
-
-function randomLetters(){
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  let result = '';
-  for (let i = 0; i < 3; i++) {
-    result += letters.charAt(Math.floor(Math.random() * letters.length));
-  }
-  return result;
-};
-
-function randomNumbers(){
-  let result = '';
-  for (let i = 0; i < 3; i++) {
-    result += Math.floor(Math.random() * 10);
-  }
-  return result;
-};
 
 const SkuForm = () => {
     const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm();
     const attributeType = watch('attributeType');
     const isSpecial = attributeType === 'special';
+    const producttypecode = watch('producttypecode');
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
@@ -60,19 +33,42 @@ const SkuForm = () => {
     const [success, setSuccess] = useState(false);
     const [actionType, setActionType] = useState(null);
 
-    const [randomAttribute1, setAttribute1] = useState('');
-    const [randomAttribute2, setAttribute2] = useState('');
+    const [randomAttribute, setAttribute] = useState('');
+
+    const [masterProductType, setMasterProductType] = useState([]);
+    const [masterModel, setMasterModel] = useState([]);
+    const [masterCategory, setMasterCategory] = useState([]);
+    const [masterSellingUnit, setMasterSellingUnit] = useState([]);
+    const [masterSaleType, setMasterSaleType] = useState([]);
+    
+
+    const getMaster = async () => {
+        const _productType = await getMasterProductType();
+        setMasterProductType(_productType?.list || []);
+
+        const _model = await getMasterModel();
+        setMasterModel(_model?.list || []);
+
+        const _category = await getMasterCategory();
+        setMasterCategory(_category?.list || []);
+
+        const _sellingUnit = await getMasterSellingUnit();
+        setMasterSellingUnit(_sellingUnit?.list || []);
+
+        const _saleType = await getMasterSaleType();
+        setMasterSaleType(_saleType?.list || []);
+    }
 
     const fetch = () => {
         reset();
-        setValue('producttype', 'H');
+        setValue('producttypecode', 'H');
         setValue('attributeType', 'special');
-        setAttribute1(randomLetters());
-        setAttribute2(randomNumbers());
+        setAttribute(randomCode());
         window.scrollTo({ top: 100, behavior: "smooth" });
     }
 
     useEffect(() => {
+        getMaster();
         fetch();
     }, [])
 
@@ -87,15 +83,14 @@ const SkuForm = () => {
     const handleGenerateSKU  = async (data) => {
         const formValue = {
             ...data,
-            attribute1: data.attribute1 || randomAttribute1,
-            attribute2: data.attribute2 || randomAttribute2,
+            specificattributes: data.specificattributes || randomAttribute,
         }
         setLoading(true);
         const res = await getSkuAdd({ ...formValue });
         setLoading(false);
         if (res?.result === 'error') {
             setError(true);
-            const sku = `${data.producttype}${data.category}${data.model}${data.attribute1 || randomAttribute1}${data.attribute2 || randomAttribute2}${data.salestype}`;
+            const sku = `${data.producttypecode}${data.categorycode}${data.modelcode}${data.specificattributes || randomAttribute}${data.sellingunitcode}${data.salestypecode}`;
             setErrorText(res?.resultdetail === 'sku_existing' ? `SKU: ${sku} นี้มีอยู่แล้วในระบบ` : 'เกิดข้อผิดพลาด ไม่สามารถบันทึกข้อมูลได้');
         } else {
             setSuccess(true);
@@ -111,8 +106,8 @@ const SkuForm = () => {
       
         const headers = ['Product Name', 'SKU', 'Category'];
 
-        const sku = `${data.producttype}${data.category}${data.model}${data.attribute1 || randomAttribute1}${data.attribute2 || randomAttribute2}${data.salestype}`;
-        const body = [[data.productname, sku, categoryList[data.category || '']]];
+        const sku = `${data.producttypecode}${data.categorycode}${data.modelcode}${data.specificattributes}${data.sellingunitcode}${data.salestypecode}`;
+        const body = [[data.productname, sku, masterCategory.find((m) => m.categorycode)?.categoryname || '']];
 
         const worksheetData = [headers, ...body];
         
@@ -143,65 +138,61 @@ const SkuForm = () => {
                             <Col md='12'>
                                 <h6 className='mb-3'>Products Type*</h6>
                                 <div style={{ display: 'flex', gap: 5, marginBottom: '-14px' }}>
-                                    <div className="form-check form-check-inline">
-                                        <input 
-                                            className="form-check-input"
-                                            style={{ width: '16px', height: '16px', marginRight: '14px', border: '1px solid #635B5B' }}
-                                            type="radio"
-                                            {...register('producttype', { required: true })}
-                                            id="human"
-                                            value="H"
-                                        />
-                                        <label for="human"><h6 className="form-check-label" style={{ paddingTop: '3px' }}>Human</h6></label>
-                                    </div>
-
-                                    <div className="form-check form-check-inline">
-                                        <input
-                                            className="form-check-input"
-                                            style={{ width: '16px', height: '16px', marginRight: '14px', border: '1px solid #635B5B' }}
-                                            type="radio"
-                                            {...register('producttype', { required: true })}
-                                            id="pets"
-                                            value="P"
-                                        />
-                                        <label for="pets"><h6 className="form-check-label" style={{ paddingTop: '3px' }}>Pets</h6></label>
-                                    </div>
+                                    {masterProductType.map((m, i) => (
+                                        <div className="form-check form-check-inline" key={m.producttypecode}>
+                                            <input 
+                                                className="form-check-input"
+                                                style={{ width: '16px', height: '16px', marginRight: '14px', border: '1px solid #635B5B' }}
+                                                type="radio"
+                                                {...register('producttypecode', { 
+                                                    required: true, 
+                                                    onChange: () => {
+                                                        setValue('categorycode', '');
+                                                        setValue('modelcode', '');
+                                                    }
+                                                })}
+                                                id={m.producttypecode}
+                                                value={m.producttypecode}
+                                            />
+                                            <label for={m.producttypecode}><h6 className="form-check-label" style={{ paddingTop: '3px' }}>{m.producttype}</h6></label>
+                                        </div>
+                                    ))}
                                 </div>
                             </Col>
 
                             <Col md='6'>
                                 <h6 className='mb-2'>Category*</h6>
                                 <select 
-                                    className={`form-select ${errors.category && 'is-invalid'} mb-1`}
-                                    id="category"
-                                    style={{ border: errors.category ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
-                                    {...register('category', { required: true })} 
+                                    className={`form-select ${errors.categorycode && 'is-invalid'} mb-1`}
+                                    id="categorycode"
+                                    style={{ border: errors.categorycode ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
+                                    {...register('categorycode', { required: true })} 
                                 >
                                     <option value="" hidden>- - Select category - -</option>
-                                    {masterCategory.map((m) => (
-                                        <option key={m.value} value={m.value}>{m.label}</option>
+                                    {masterCategory.filter((m) => producttypecode === m.producttypecode).map((m) => (
+                                        <option key={m.categorycode} value={m.categorycode}>{m.categoryname}</option>
                                     ))}
                                 </select>
-                                <span className="text-danger">{errors.category && "กรุณาเลือก Category"}</span>
+                                <span className="text-danger">{errors.categorycode && "กรุณาเลือก Category"}</span>
                             </Col>
 
                             <Col md='6'>
                                 <h6 className='mb-2'>Model*</h6>
                                 <select 
-                                    className={`form-select ${errors.model && 'is-invalid'} mb-1`}
-                                    id="model"
-                                    style={{ border: errors.model ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
-                                    {...register('model', { required: true })} 
+                                    className={`form-select ${errors.modelcode && 'is-invalid'} mb-1`}
+                                    id="modelcode"
+                                    style={{ border: errors.modelcode ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
+                                    {...register('modelcode', { required: true })} 
                                 >
                                     <option value="" hidden>- -Select model - -</option>
-                                    {masterModel.map((m) => (
-                                        <option key={m.value} value={m.value}>{m.label}</option>
+                                    {masterModel.filter((m) => producttypecode === m.producttypecode).map((m) => (
+                                        <option key={m.modelcode} value={m.modelcode}>{m.modelname}</option>
                                     ))}
                                 </select>
-                                <span className="text-danger">{errors.model && "กรุณาเลือก Model"}</span>
+                                <span className="text-danger">{errors.modelcode && "กรุณาเลือก Model"}</span>
                             </Col>
 
-                            <Col md='6'>
+                            <Col md='12' lg='12'>
                                 <h6 className='mb-2'>Specific Attributes*</h6>
                                 <div style={{ display: 'flex', gap: 5 }}>
                                     <input
@@ -213,23 +204,22 @@ const SkuForm = () => {
                                         value="special"
                                         onChange={(e) => {
                                             setValue('attributeType', 'special');
-                                            setValue('attribute1', '');
-                                            setValue('attribute2', '');
+                                            setValue('specificattributes', '');
                                         }}
                                     />
-                                    <div>
+                                    <div style={{ width: '100%' }}>
                                         <input 
-                                            className={`form-control ${errors.attribute1 && 'is-invalid'} mb-1`}
-                                            id="attribute1"
+                                            className={`form-control ${errors.specificattributes && 'is-invalid'} mb-1`}
+                                            id="specificattributes"
                                             type="text"
-                                            placeholder='POW'
-                                            style={{ border: errors.attribute1 ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
-                                            maxLength={3}
-                                            {...register('attribute1', {
+                                            placeholder='POSE6'
+                                            style={{ width: '100%', border: errors.specificattributes ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
+                                            maxLength={5}
+                                            {...register('specificattributes', {
                                                 required: isSpecial || false,
                                                 pattern: {
-                                                value: /^[A-Za-z]{3}$/,
-                                                message: 'กรุณากรอกตัวอักษรภาษาอังกฤษ 3 ตัว',
+                                                value: /^[A-Za-z0-9]{5}$/,
+                                                message: 'กรุณากรอกตัวอักษรภาษาอังกฤษหรือตัวเลข 5 ตัว',
                                                 },
                                                 onChange: (e) => {
                                                     e.target.value = e.target.value.toUpperCase();
@@ -237,35 +227,10 @@ const SkuForm = () => {
                                             })}
                                             disabled={!isSpecial}
                                         />
-                                        <span className="text-danger">{errors.attribute1 && (errors.attribute1.message || 'กรุณากรอกข้อมูล')}</span>
-                                        <p style={{ color: '#003176', padding: '0px', margin: '0px' }}>ใส่ 3 ตัวอักษร ระบุลักษณะสินค้า เป็นผง เป็นขวด</p>
+                                        <span className="text-danger">{errors.specificattributes && (errors.specificattributes.message || 'กรุณากรอกข้อมูล')}</span>
+                                        <p style={{ color: '#003176', padding: '0px', margin: '0px' }}>ใส่ 5 ตัวอักษรหรือตัวเลข ระบุลักษณะสินค้า เป็นผง เป็นขวด และขนาดบรรจุ</p>
                                     </div>               
                                 </div>
-                            </Col>
-
-                            <Col md='6'>
-                                <h6 className='mb-2'>&nbsp;</h6>
-                                <input 
-                                    className={`form-control ${errors.attribute2 && 'is-invalid'} mb-1`}
-                                    id="attribute2"
-                                    type="text"
-                                    placeholder='e.g  060'
-                                    style={{ border: errors.attribute2 ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
-                                    maxLength={3}
-                                    {...register('attribute2', {
-                                        required: isSpecial || false,
-                                        pattern: {
-                                        value: /^[0-9]{3}$/,
-                                        message: 'กรุณากรอกตัวเลข 3 หลักเท่านั้น',
-                                        },
-                                        onChange: (e) => {
-                                            e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                                        },
-                                    })}
-                                    disabled={!isSpecial}
-                                />
-                                <span className="text-danger">{errors.attribute2 && (errors.attribute2.message || 'กรุณากรอกข้อมูล')}</span>
-                                <p style={{ color: '#003176', padding: '0px', margin: '0px' }}>ใส่ 3 ตัวเลข เพื่อระบุขนาด เช่น 060 60 กรัม</p>
                             </Col>
 
                             <Col md='6'>
@@ -286,22 +251,36 @@ const SkuForm = () => {
                             <Col md='6'></Col>
 
                             <Col md='6'>
-                                <h6 className='mb-2'>Sales Type*</h6>
+                                <h6 className='mb-2'>Selling Unit*</h6>
                                 <select 
-                                    className={`form-select ${errors.salestype && 'is-invalid'} mb-1`}
-                                    id="salestype"
-                                    style={{ border: errors.salestype ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
-                                    {...register('salestype', { required: true })} 
+                                    className={`form-select ${errors.sellingunitcode && 'is-invalid'} mb-1`}
+                                    id="sellingunitcode"
+                                    style={{ border: errors.sellingunitcode ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
+                                    {...register('sellingunitcode', { required: true })} 
                                 >
                                     <option value="" hidden>- - Select sales type - -</option>
-                                    {masterSalesType.map((m) => (
-                                        <option key={m.value} value={m.value}>{m.label}</option>
+                                    {masterSellingUnit.map((m) => (
+                                        <option key={m.sellingunitcode} value={m.sellingunitcode}>{m.sellingunitname || m.sellingunitcode}</option>
                                     ))}
                                 </select>
-                                <span className="text-danger">{errors.salestype && "กรุณาเลือก Sales type"}</span>
+                                <span className="text-danger">{errors.sellingunitcode && "กรุณาเลือก Selling Unit"}</span>
                             </Col>
 
-                            <Col md='6'></Col>
+                            <Col md='6'>
+                                <h6 className='mb-2'>Sales Type*</h6>
+                                <select 
+                                    className={`form-select ${errors.salestypecode && 'is-invalid'} mb-1`}
+                                    id="salestypecode"
+                                    style={{ border: errors.salestypecode ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
+                                    {...register('salestypecode', { required: true })} 
+                                >
+                                    <option value="" hidden>- - Select sales type - -</option>
+                                    {masterSaleType.map((m) => (
+                                        <option key={m.saletypecode} value={m.saletypecode}>{m.saletypename}</option>
+                                    ))}
+                                </select>
+                                <span className="text-danger">{errors.salestypecode && "กรุณาเลือก Sales type"}</span>
+                            </Col>
 
                             <Col md='12'>
                                 <h6 className='mb-2'>Product Name*</h6>
@@ -314,6 +293,18 @@ const SkuForm = () => {
                                     {...register('productname', { required: true })} 
                                 />
                                 <span className="text-danger">{errors.productname && "กรุณากรอก Product Name"}</span>
+                            </Col>
+
+                            <Col md='12'>
+                                <h6 className='mb-2'>Remark</h6>
+                                <input 
+                                    className={`form-control ${errors.remark && 'is-invalid'} mb-1`}
+                                    id="remark"
+                                    type="text"
+                                    placeholder='Remark'
+                                    style={{ border: errors.remark ? '1px solid red' : '1px solid #D1D1D1', padding: '14px' }}
+                                    {...register('remark', { required: false })} 
+                                />
                             </Col>
                         </Row>
 

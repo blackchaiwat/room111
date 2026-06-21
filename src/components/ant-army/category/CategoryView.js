@@ -1,46 +1,45 @@
 import { Fragment, useEffect, useState } from 'react';
 import BreadCrumb from '../../../layout/Breadcrumb'
 import { Container } from 'reactstrap'
-import SkuResult from './SkuResult';
-import SkuForm from './SkuForm';
+import CategoryResult from './CategoryResult';
+import CategoryForm from './CategoryForm';
 
-const SkuView = () => {
-    const [isResult, setIsResult] = useState(false);
+const CategoryView = () => {
+    const [isResult, setIsResult] = useState(true);
+
+    const [dataEdit, setDataEdit] = useState(null);
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const tab = params.get('tab');
-
-        if (tab === '2') {
-            setIsResult(true);
+        if (dataEdit) {
+            setIsResult(false);
         }
-    }, [])
+    }, [dataEdit])
 
     return (
         <Fragment>
             <BreadCrumb 
                 parent="Home"
                 subparent="Dashboard"
-                title="SKU"
+                title="Category"
                 isResult={isResult}
                 setIsResult={setIsResult}
+                type="category"
             />
 
             <Container fluid={true} style={{ marginTop: '30px' }}>
                 <div style={{ textAlign: 'center', borderBottom: '1px solid black', marginBottom: '20px' }}>
-                    <h4>Stock Keeping Unit SKU Generator</h4>
-                    <p style={{ color: '#8E8E8E' }}>Generate SKUs for your products and variants in minutes.</p>
+                    <h4 style={{ marginBottom: "20px" }}>Category</h4>
                 </div>
 
                 {!isResult && (
-                    <SkuForm />
+                    <CategoryForm dataEdit={dataEdit} setDataEdit={setDataEdit} />
                 )}
                 {isResult && (
-                    <SkuResult />
+                    <CategoryResult setDataEdit={setDataEdit} />
                 )}
             </Container>
         </Fragment>
     );
 };
 
-export default SkuView;
+export default CategoryView;
