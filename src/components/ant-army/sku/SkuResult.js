@@ -3,8 +3,8 @@ import { Row, Col, Card, CardBody, CardHeader, Button } from 'reactstrap'
 import DataTable from 'react-data-table-component'
 import { BoxFilter, BoxSearch } from '../criteria/Criteria';
 import { Upload } from 'react-feather';
-import { getSkuExport, getSkuList } from '../../../util/sku';
-import { BoxError, BoxLoading } from '../criteria/BoxAlert';
+import { getSkuDelete, getSkuExport, getSkuList } from '../../../util/sku';
+import { BoxConfirm, BoxError, BoxLoading, BoxSuccess } from '../criteria/BoxAlert';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { getMasterCategory, getMasterModel } from '../../../util/masterdata';
@@ -35,6 +35,9 @@ const SkuResult = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
+     const [confirm, setConfirm] = useState(false);
+      const [success, setSuccess] = useState(false);
+    const [id, setId] = useState(null);
 
     const [criteria, setCriteria] = useState({
         producttype: 'all',
@@ -84,6 +87,7 @@ const SkuResult = () => {
     
         data.forEach((m, i) => {
             list.push({
+                ...m,
                 selected: (
                     <div style={{ paddingTop: '7px' }}>
                         <label className='checkbox-container'>
@@ -203,10 +207,24 @@ const SkuResult = () => {
         setIsAll(false);
     }
 
+    const handleDelete = async (row) => {
+        setId(row.id);
+        setConfirm(true);
+    }
+
+    const onDelete = async (row) => {
+        await getSkuDelete({ id });
+        setConfirm(false);
+        setSuccess(true);
+        fetch(criteria);
+    }
+
     return (
         <Fragment>
             <BoxLoading open={loading} setOpen={setLoading} />
             <BoxError open={error} setOpen={setError} text='ไม่สามารถดาวน์โหลดไฟล์ได้' />
+            <BoxConfirm open={confirm} setOpen={setConfirm} onConfirm={onDelete} />
+            <BoxSuccess open={success} setOpen={() => setSuccess(false)} />
 
             <Row>
                 <h6 className='mb-4'>SKU Data</h6>
@@ -270,7 +288,11 @@ const SkuResult = () => {
                         <CardBody>
                             <div className="table-responsive support-table">
                                 <DataTable
-                                    columns={columns}
+                                    columns={
+                                        columns(
+                                            handleDelete
+                                        )
+                                    }
                                     data={dataList}
                                     striped={true}
                                     center={true}
@@ -295,7 +317,9 @@ const SkuResult = () => {
 
 export default SkuResult;
 
-const columns = [
+const columns = (
+    handleDelete
+) => [
     {
         name: "",
         selector: (row) => row["selected"],
@@ -356,5 +380,26 @@ const columns = [
         center: true,
         wrap: true,
         minWidth: "300px",
+    },
+    {
+        name: "Action",
+        center: true,
+        minWidth: "120px",
+        cell: (row) => (
+            <div>
+                <span onClick={() => handleDelete(row)}>
+                <i
+                    className="fa fa-trash"
+                    style={{
+                        width: 35,
+                        fontSize: 16,
+                        padding: 11,
+                        color: "#bd1509",
+                        cursor: 'pointer',
+                    }}
+                ></i>
+                </span>
+            </div>
+        )
     },
 ]

@@ -19,6 +19,7 @@ const URL = {
     SKU_LIST: `${URL_ENDPOINT}/${path}/api/product/list`,
     SKU_ADD: `${URL_ENDPOINT}/${path}/api/product/add`,
     SKU_EXPORT: `${URL_ENDPOINT}/${path}/api/product/export`,
+    SKU_DELETE: `${URL_ENDPOINT}/${path}/api/product/delete`,
 
     CATEGORY_LIST: `${URL_ENDPOINT}/${path}/api/cms/category/list`,
     CATEGORY_ADD: `${URL_ENDPOINT}/${path}/api/cms/category/add`,

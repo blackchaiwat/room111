@@ -38,5 +38,22 @@ export const BoxSuccess = ({ open, setOpen }) => {
     )
 }
 
+export const BoxConfirm = ({ open, setOpen, onConfirm }) => {
+    return (
+        <Modal isOpen={open} toggle={() => setOpen(false)} centered>
+            <ModalBody style={{ paddingTop: '30px', paddingBottom: '20px' }}>
+                <h5>ยืนยันการลบรายการ</h5>
+            </ModalBody>
 
+            <ModalFooter>
+                <Button color="secondary" onClick={() => setOpen(false)}>
+                    ยกเลิก
+                </Button>
 
+                <Button color="primary" onClick={onConfirm}>
+                    ยืนยัน
+                </Button>
+            </ModalFooter>
+        </Modal>
+    )
+}
