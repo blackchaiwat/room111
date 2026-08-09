@@ -34,3 +34,13 @@ export async function getSkuExport(params) {
     }
 }
 
+export async function getSkuDelete(params) {
+    try {
+      const res = await api.post(URL.SKU_DELETE, {
+        ...params,
+      });
+      return res.data;
+    } catch (err) {
+      return { isError: true };
+    }
+}
